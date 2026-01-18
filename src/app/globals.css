@@ -9,20 +9,28 @@
 
 @layer base {
   body {
-    @apply bg-luxyra-plum text-luxyra-blush;
+    background-color: #1A0B16;
+    /* luxyra-plum */
+    color: #F2C1D1;
+    /* luxyra-blush */
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply text-luxyra-gold font-medium tracking-tight;
   }
 }
 
 @layer components {
   .btn-gold {
-    @apply bg-luxyra-gold text-luxyra-plum font-semibold px-6 py-2 rounded-full hover:bg-luxyra-champagne transition-all shadow-[0_0_15px_rgba(212,175,55,0.3)];
+    @apply bg-luxyra-gold text-luxyra-plum font-semibold px-6 py-2 rounded-full hover:bg-luxyra-champagne transition-all shadow-[0_0_15px_rgba(212, 175, 55, 0.3)];
   }
-  
+
   .btn-ghost {
     @apply bg-transparent text-luxyra-blush border border-luxyra-blush/30 px-6 py-2 rounded-full hover:bg-luxyra-blush/10 transition-all;
   }
@@ -34,7 +42,7 @@
   .glass-card {
     @apply bg-luxyra-deep/30 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl;
   }
-  
+
   .vip-ring {
     @apply ring-2 ring-luxyra-gold ring-offset-2 ring-offset-luxyra-void shadow-[0_0_10px_#D4AF37];
   }
