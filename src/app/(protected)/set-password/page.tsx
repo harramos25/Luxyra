@@ -17,10 +17,28 @@ export default function SetPasswordPage() {
     const [msg, setMsg] = React.useState<string | null>(null)
 
     React.useEffect(() => {
-        ; (async () => {
-            const { data } = await supabase.auth.getUser()
-            if (!data.user) router.push("/login")
-        })()
+        // Robust Auth Check: Listen to state changes instead of a one-off check
+        // This handles the case where restoring the session from storage takes a few ms
+        const checkSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession()
+            if (!session) {
+                // Give it a split second in case of race condition during redirect?
+                // Or better: rely on onAuthStateChange below
+            }
+        }
+
+        checkSession()
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT' || !session) {
+                console.log("User signed out or no session, redirecting to login")
+                router.push("/login")
+            }
+        })
+
+        return () => {
+            subscription.unsubscribe()
+        }
     }, [router, supabase])
 
     async function submit(e: React.FormEvent) {
