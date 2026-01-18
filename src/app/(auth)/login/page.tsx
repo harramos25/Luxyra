@@ -37,19 +37,17 @@ export default function LoginPage() {
         setMsg(null)
         setLoading(true)
 
-        // Send magic link that lands on /auth/callback (server route)
-        // We explicitly use window.location.origin to support any environment
-        const redirectTo = `${window.location.origin}/auth/callback?next=/dashboard`
+        // Use Server Action to initiate login
+        // This ensures the PKCE verifier is stored in a cookie (readable by server)
+        // rather than localStorage (client only).
+        // This solves the 'PKCE verifier not found' error on the callback route.
+        const { signInWithMagicLink } = await import("@/actions/auth")
 
-        const { error } = await supabase.auth.signInWithOtp({
-            email,
-            options: {
-                emailRedirectTo: redirectTo,
-            },
-        })
+        // We catch errors from the server action
+        const result = await signInWithMagicLink(email)
 
         setLoading(false)
-        if (error) return setMsg(error.message)
+        if (result?.error) return setMsg(result.error)
 
         setMsg("Check your email. Open the magic link to continue.")
     }
