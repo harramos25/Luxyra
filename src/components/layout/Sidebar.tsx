@@ -47,6 +47,7 @@ export function Sidebar() {
     const links = [
         { href: "/dashboard", label: "Sanctuary", icon: Home },
         { href: "/notifications", label: "Notifications", icon: Bell },
+        { href: "/settings", label: "Settings", icon: Settings },
         // { href: "/messages", label: "Messages", icon: MessageSquare }, // Replaced by dynamic list
     ]
 
