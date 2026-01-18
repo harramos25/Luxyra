@@ -5,14 +5,18 @@
 :root {
   --background: #1A0B16;
   --foreground: #F2C1D1;
+  --luxyra-plum: #1A0B16;
+  --luxyra-deep: #2E1025;
+  --luxyra-gold: #D4AF37;
+  --luxyra-blush: #F2C1D1;
+  --luxyra-champagne: #F7E7CE;
+  --luxyra-void: #0d050a;
 }
 
 @layer base {
   body {
-    background-color: #1A0B16;
-    /* luxyra-plum */
-    color: #F2C1D1;
-    /* luxyra-blush */
+    background-color: var(--luxyra-plum);
+    color: var(--luxyra-blush);
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
@@ -22,28 +26,61 @@
   h4,
   h5,
   h6 {
-    @apply text-luxyra-gold font-medium tracking-tight;
+    @apply font-medium tracking-tight;
+    color: var(--luxyra-gold);
   }
 }
 
 @layer components {
   .btn-gold {
-    @apply bg-luxyra-gold text-luxyra-plum font-semibold px-6 py-2 rounded-full hover:bg-luxyra-champagne transition-all shadow-[0_0_15px_rgba(212, 175, 55, 0.3)];
+    @apply font-semibold px-6 py-2 rounded-full transition-all;
+    background-color: var(--luxyra-gold);
+    color: var(--luxyra-plum);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+  }
+
+  .btn-gold:hover {
+    background-color: var(--luxyra-champagne);
   }
 
   .btn-ghost {
-    @apply bg-transparent text-luxyra-blush border border-luxyra-blush/30 px-6 py-2 rounded-full hover:bg-luxyra-blush/10 transition-all;
+    @apply bg-transparent px-6 py-2 rounded-full transition-all;
+    color: var(--luxyra-blush);
+    border: 1px solid rgba(244, 194, 194, 0.3);
+  }
+
+  .btn-ghost:hover {
+    background-color: rgba(244, 194, 194, 0.1);
   }
 
   .input-field {
-    @apply bg-luxyra-deep/50 border border-luxyra-gold/20 rounded-lg px-4 py-3 text-luxyra-champagne focus:outline-none focus:border-luxyra-gold/50 focus:ring-1 focus:ring-luxyra-gold/50 placeholder:text-luxyra-blush/30 w-full backdrop-blur-sm;
+    @apply rounded-lg px-4 py-3 w-full backdrop-blur-sm focus:outline-none focus:ring-1;
+    background-color: rgba(46, 16, 37, 0.5);
+    /* luxyra-deep/50 */
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    /* luxyra-gold/20 */
+    color: var(--luxyra-champagne);
+  }
+
+  .input-field::placeholder {
+    color: rgba(244, 194, 194, 0.3);
+  }
+
+  .input-field:focus {
+    border-color: rgba(212, 175, 55, 0.5);
+    --tw-ring-color: rgba(212, 175, 55, 0.5);
   }
 
   .glass-card {
-    @apply bg-luxyra-deep/30 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl;
+    @apply backdrop-blur-md rounded-2xl p-6 shadow-xl;
+    background-color: rgba(46, 16, 37, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   .vip-ring {
-    @apply ring-2 ring-luxyra-gold ring-offset-2 ring-offset-luxyra-void shadow-[0_0_10px_#D4AF37];
+    @apply ring-2 ring-offset-2;
+    --tw-ring-color: var(--luxyra-gold);
+    --tw-ring-offset-color: var(--luxyra-void);
+    box-shadow: 0 0 10px #D4AF37;
   }
 }
