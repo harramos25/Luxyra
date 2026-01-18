@@ -38,8 +38,8 @@ export default function LoginPage() {
         setLoading(true)
 
         // Send magic link that lands on /auth/callback (server route)
-        // We explicitly ask to go to /set-password after session exchange
-        const redirectTo = `${window.location.origin}/auth/callback?next=/set-password`
+        // We explicitly use window.location.origin to support any environment
+        const redirectTo = `${window.location.origin}/auth/callback`
 
         const { error } = await supabase.auth.signInWithOtp({
             email,
@@ -85,8 +85,8 @@ export default function LoginPage() {
                                 type="button"
                                 onClick={() => setMode("login")}
                                 className={`px-6 py-2 rounded-full text-sm transition-all duration-300 font-medium ${mode === "login"
-                                        ? "bg-luxyra-gold/20 text-luxyra-gold border border-luxyra-gold/40 shadow-[0_0_10px_rgba(212,175,55,0.2)]"
-                                        : "text-luxyra-blush/60 hover:text-luxyra-blush hover:bg-white/5"
+                                    ? "bg-luxyra-gold/20 text-luxyra-gold border border-luxyra-gold/40 shadow-[0_0_10px_rgba(212,175,55,0.2)]"
+                                    : "text-luxyra-blush/60 hover:text-luxyra-blush hover:bg-white/5"
                                     }`}
                             >
                                 Log in
@@ -95,8 +95,8 @@ export default function LoginPage() {
                                 type="button"
                                 onClick={() => setMode("create")}
                                 className={`px-6 py-2 rounded-full text-sm transition-all duration-300 font-medium ${mode === "create"
-                                        ? "bg-luxyra-blush/20 text-luxyra-blush border border-luxyra-blush/40 shadow-[0_0_10px_rgba(242,193,209,0.2)]"
-                                        : "text-luxyra-blush/60 hover:text-luxyra-blush hover:bg-white/5"
+                                    ? "bg-luxyra-blush/20 text-luxyra-blush border border-luxyra-blush/40 shadow-[0_0_10px_rgba(242,193,209,0.2)]"
+                                    : "text-luxyra-blush/60 hover:text-luxyra-blush hover:bg-white/5"
                                     }`}
                             >
                                 Create account
