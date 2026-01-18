@@ -26,17 +26,8 @@ export async function findMatch() {
         throw new Error("Verification pending or rejected")
     }
 
-    // 2. Queue Cleanup (Remove stale entries > 60s)
-    // Note: RLS might block deleting others' rows if not careful.
-    // Ideally, use a secure RPC or Service Role if RLS is strict. 
-    // For MVP with basic RLS, we might need to rely on the queue behaving or use Service Role here.
-    // We'll trust the current setup allows queue management or fails gracefully.
-    // To be safe, we can skip explicit cleanup of *others* if permissions fail, 
-    // but we should definitely clean up *our* old entries.
-
-    // Clean OWN old entries first always
+    // 2. Queue Cleanup (Remove stale and OWN old entries)
     await supabase.from('match_queue').delete().eq('user_id', user.id)
-
 
     // 3. Find Match (Avoid Self, Avoid Recent? - MVP just avoids self)
     // We want someone who is NOT me.
@@ -73,20 +64,18 @@ export async function findMatch() {
             return { status: 'retry' }
         }
 
-        // Create Room
+        // Create Room using user_a / user_b structure (Updated for User SQL)
         const { data: room, error: roomError } = await supabase
             .from('stranger_rooms')
-            .insert({ is_active: true })
+            .insert({
+                user_a: user.id,
+                user_b: partnerId,
+                is_active: true
+            })
             .select()
             .single()
 
-        if (roomError || !room) throw new Error("Failed to create room")
-
-        // Add Participants
-        await supabase.from('stranger_participants').insert([
-            { room_id: room.id, user_id: user.id },
-            { room_id: room.id, user_id: partnerId }
-        ])
+        if (roomError || !room) throw new Error("Failed to create room: " + roomError?.message)
 
         return { roomId: room.id }
 

@@ -24,19 +24,24 @@ export function ProfileModal({ isOpen, onClose, userId, alias, bio, isStranger, 
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
 
-        // Check if already friends or requested? 
-        // For MVP, just insert request. Unique constraint handles duplicates.
+        // Insert request
+        // User SQL: from_user, to_user
         const { error } = await supabase
             .from('friend_requests')
             .insert({
-                sender_id: user.id,
-                receiver_id: userId
+                from_user: user.id, // Changed from sender_id
+                to_user: userId     // Changed from receiver_id
             })
 
         if (!error) {
             setRequestSent(true)
         } else {
-            alert("Could not send request: " + error.message)
+            // Handle duplicate key error gracefully
+            if (error.code === '23505') { // Unique violation
+                setRequestSent(true)
+            } else {
+                alert("Could not send request: " + error.message)
+            }
         }
     }
 

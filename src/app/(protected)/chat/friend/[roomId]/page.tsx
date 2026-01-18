@@ -25,8 +25,12 @@ export default function FriendChatPage() {
             if (!user) return
             setUserId(user.id)
 
-            // RPC call to enforce history limits based on subscription
-            const { data, error } = await supabase.rpc('get_friend_messages', { room_id_input: roomId })
+            // RPC call to enforce history limits (Updated parameters for User SQL)
+            // p_room_id, p_viewer_id
+            const { data, error } = await supabase.rpc('get_friend_messages', {
+                p_room_id: roomId,
+                p_viewer_id: user.id
+            })
 
             if (data) setMessages(data)
             if (error) console.error("Error fetching messages:", error)
@@ -63,10 +67,10 @@ export default function FriendChatPage() {
         if (!newMessage.trim()) return
 
         // Insert
-        // We can use direct insert if RLS allows
+        // Using direct insert (RLS allows participants to insert)
         const { error } = await supabase.from('friend_messages').insert({
             room_id: roomId,
-            user_id: userId,
+            sender_id: userId,
             content: newMessage
         })
 
@@ -102,7 +106,7 @@ export default function FriendChatPage() {
                         </p>
                     )}
                     {messages.map((msg) => {
-                        const isMe = msg.user_id === userId
+                        const isMe = msg.sender_id === userId // matched RPC response col name
                         return (
                             <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`max-w-[70%] p-3 rounded-2xl ${isMe

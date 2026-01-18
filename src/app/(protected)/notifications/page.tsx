@@ -18,51 +18,56 @@ export default function NotificationsPage() {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
 
-        const { data } = await supabase
+        // Select sender info (assuming 'sender' alias isn't setup via foreign key automatically in pure TS)
+        // With schema provided, 'from_user' refs 'profiles'.
+        // So query should follow 'from_user' FK if Supabase inferred it, OR just fetch manually.
+        // User's SQL: `from_user uuid not null references public.profiles(id)`
+        // Supabase often aliases as `profiles` unless named.
+        const { data, error } = await supabase
             .from('friend_requests')
-            .select('*, sender:sender_id(alias, avatar_url)')
-            .eq('receiver_id', user.id)
+            .select('*, sender:from_user(alias, avatar_url)') // Changed 'sender_id' to 'from_user'
+            .eq('to_user', user.id) // Changed 'receiver_id' to 'to_user'
             .eq('status', 'pending')
 
         if (data) setRequests(data)
     }
 
     const handleResponse = async (id: string, accept: boolean) => {
-        const status = accept ? 'accepted' : 'rejected'
+        const status = accept ? 'accepted' : 'declined' // User's Enum: 'accepted', 'declined' (not rejected)
 
-        // Transactional logic ideally:
-        // If accepted, add to friendships, create friend_room if not exists.
-        // For MVP, just update status. 
-        // We need a Server Action or Trigger for the side effects (creating friendship + room).
-        // I'll assume a trigger handles it OR I do it here manually (client-side chaining).
-        // Manual logic:
-        await supabase
+        const { error } = await supabase
             .from('friend_requests')
             .update({ status })
             .eq('id', id)
 
+        if (error) {
+            alert("Error: " + error.message)
+            return
+        }
+
         if (accept) {
-            // Fetch sender_id to create friendship
             const req = requests.find(r => r.id === id)
             if (req) {
                 const { data: { user } } = await supabase.auth.getUser()
                 if (user) {
-                    // Create Friendship (Bidirectional) - wait, duplicate if trigger?
-                    // Let's do it manually just in case schema.sql didn't have trigger.
+                    // Create Friendship (Bidirectional)
+                    // User's SQL: `insert into friendships(user_id, friend_id) ...`
+                    // Their SQL table `friendships` has `user_id` and `friend_id` and `unique`.
+                    // We typically insert BOTH ways for easier select.
                     await supabase.from('friendships').insert([
-                        { user_id: user.id, friend_id: req.sender_id },
-                        { user_id: req.sender_id, friend_id: user.id }
+                        { user_id: user.id, friend_id: req.from_user }, // Changed sender_id to from_user
+                        { user_id: req.from_user, friend_id: user.id }
                     ])
-                    // Create Room (Unique per pair? Need logic to check existence)
-                    // MVP: Create new friend_room for every accepted request? Or check?
-                    // Creating a room and participants.
-                    const { data: room } = await supabase.from('friend_rooms').insert({}).select().single()
-                    if (room) {
-                        await supabase.from('friend_participants').insert([
-                            { room_id: room.id, user_id: user.id },
-                            { room_id: room.id, user_id: req.sender_id }
-                        ])
-                    }
+
+                    // Create Room
+                    // User's SQL: `friend_rooms` with `user_a` and `user_b` and `unique(user_a, user_b)`
+                    // We need to order them (e.g. alphanumeric) or just insert and let Unique constraint fail if exists.
+                    // Or try inserting.
+                    const [u1, u2] = [user.id, req.from_user].sort()
+                    await supabase.from('friend_rooms').upsert({ // Upsert safe for unique constraint
+                        user_a: u1,
+                        user_b: u2
+                    }, { onConflict: 'user_a,user_b' })
                 }
             }
         }

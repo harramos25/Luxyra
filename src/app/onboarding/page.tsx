@@ -71,14 +71,14 @@ export default function OnboardingPage() {
             return
         }
 
-        // Insert Interests
+        // Insert Interests (Updated table name: user_interests)
         const interestsData = formData.interests.map(i => ({
             user_id: user.id,
             interest: i
         }))
 
         if (interestsData.length > 0) {
-            const { error: interestError } = await supabase.from('interests').insert(interestsData)
+            const { error: interestError } = await supabase.from('user_interests').insert(interestsData)
             if (interestError) {
                 alert("Error saving interests: " + interestError.message)
             }
