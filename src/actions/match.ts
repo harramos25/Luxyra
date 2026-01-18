@@ -9,16 +9,22 @@ export async function findMatch() {
     if (!user) throw new Error("Not authenticated")
 
     // 1. Strict Access Control Check
+    // Using .throwOnError() to ensure TS narrows the type correctly to data (not error union)
     const { data: profile } = await supabase
         .from('profiles')
         .select('verification_status, birthday')
         .eq('id', user.id)
         .single()
+        .throwOnError()
 
-    if (!profile) throw new Error("Profile not found")
+    if (!profile?.birthday) {
+        throw new Error("Birthday not set")
+    }
 
     // Check 18+ (Double check server side)
-    const age = differenceInYears(new Date(), new Date(profile.birthday))
+    // Explicitly cast to string because DB returns string date, new Date handles it.
+    const age = differenceInYears(new Date(), new Date(profile.birthday as string))
+
     if (age < 18) throw new Error("Age requirement not met")
 
     // Check Verification
