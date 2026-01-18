@@ -39,7 +39,7 @@ export default function LoginPage() {
 
         // Send magic link that lands on /auth/callback (server route)
         // We explicitly use window.location.origin to support any environment
-        const redirectTo = `${window.location.origin}/auth/callback`
+        const redirectTo = `${window.location.origin}/auth/callback?next=/dashboard`
 
         const { error } = await supabase.auth.signInWithOtp({
             email,
