@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import AuthCallbackInner from "./inner"
+import CallbackInner from "./CallbackInner"
 
 export default function AuthCallbackPage() {
     return (
@@ -10,7 +10,7 @@ export default function AuthCallbackPage() {
                 </div>
             </div>
         }>
-            <AuthCallbackInner />
+            <CallbackInner />
         </Suspense>
     )
 }

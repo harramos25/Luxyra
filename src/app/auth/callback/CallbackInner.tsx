@@ -4,7 +4,7 @@ import * as React from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 
-export default function AuthCallbackInner() {
+export default function CallbackInner() {
     const router = useRouter()
     const params = useSearchParams()
     const supabase = createClient()
@@ -24,20 +24,14 @@ export default function AuthCallbackInner() {
                 }
 
                 if (!data.session) {
-                    // Retry logic or hard fail? 
-                    // If getting session failed without error, it implies no session found in storage/URL.
                     console.warn("No session found in callback")
                     // router.replace("/login?error=no_session")
                     // return
                 }
 
-                // ✅ CRITICAL: Sync Server state
-                // router.refresh() forces Next.js to re-run middleware and server components
-                // with the newly set cookies/session.
+                // Sync Server state
                 router.refresh()
 
-                // Short delay to ensure cookies stick? 
-                // Sometimes helpful but router.refresh typically handles the server sync roundtrip.
                 await new Promise(r => setTimeout(r, 100))
 
                 router.replace("/set-password")
