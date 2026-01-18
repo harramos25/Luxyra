@@ -1,7 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
+/* Luxyra tokens */
 :root {
   --background: #1A0B16;
   --foreground: #F2C1D1;
@@ -13,74 +12,88 @@
   --luxyra-void: #0d050a;
 }
 
-@layer base {
-  body {
-    background-color: var(--luxyra-plum);
-    color: var(--luxyra-blush);
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-medium tracking-tight;
-    color: var(--luxyra-gold);
-  }
+html,
+body {
+  height: 100%;
 }
 
-@layer components {
-  .btn-gold {
-    @apply font-semibold px-6 py-2 rounded-full transition-all;
-    background-color: var(--luxyra-gold);
-    color: var(--luxyra-plum);
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
-  }
+body {
+  background: var(--luxyra-plum);
+  color: var(--luxyra-blush);
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
 
-  .btn-gold:hover {
-    background-color: var(--luxyra-champagne);
-  }
+/* Headings (no @apply, avoid Tailwind build edge cases) */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--luxyra-gold);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
 
-  .btn-ghost {
-    @apply bg-transparent px-6 py-2 rounded-full transition-all;
-    color: var(--luxyra-blush);
-    border: 1px solid rgba(244, 194, 194, 0.3);
-  }
+/* Components as plain CSS (safe) */
+.btn-gold {
+  font-weight: 600;
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  transition: all 150ms ease;
+  background: var(--luxyra-gold);
+  color: var(--luxyra-plum);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+}
 
-  .btn-ghost:hover {
-    background-color: rgba(244, 194, 194, 0.1);
-  }
+.btn-gold:hover {
+  background: var(--luxyra-champagne);
+}
 
-  .input-field {
-    @apply rounded-lg px-4 py-3 w-full backdrop-blur-sm focus:outline-none focus:ring-1;
-    background-color: rgba(46, 16, 37, 0.5);
-    /* luxyra-deep/50 */
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    /* luxyra-gold/20 */
-    color: var(--luxyra-champagne);
-  }
+.btn-ghost {
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  transition: all 150ms ease;
+  background: transparent;
+  color: var(--luxyra-blush);
+  border: 1px solid rgba(244, 194, 194, 0.3);
+}
 
-  .input-field::placeholder {
-    color: rgba(244, 194, 194, 0.3);
-  }
+.btn-ghost:hover {
+  background: rgba(244, 194, 194, 0.1);
+}
 
-  .input-field:focus {
-    border-color: rgba(212, 175, 55, 0.5);
-    --tw-ring-color: rgba(212, 175, 55, 0.5);
-  }
+.input-field {
+  width: 100%;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  backdrop-filter: blur(8px);
+  background: rgba(46, 16, 37, 0.5);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: var(--luxyra-champagne);
+  outline: none;
+}
 
-  .glass-card {
-    @apply backdrop-blur-md rounded-2xl p-6 shadow-xl;
-    background-color: rgba(46, 16, 37, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-  }
+.input-field::placeholder {
+  color: rgba(244, 194, 194, 0.3);
+}
 
-  .vip-ring {
-    @apply ring-2 ring-offset-2;
-    --tw-ring-color: var(--luxyra-gold);
-    --tw-ring-offset-color: var(--luxyra-void);
-    box-shadow: 0 0 10px #D4AF37;
-  }
+.input-field:focus {
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.5);
+}
+
+.glass-card {
+  backdrop-filter: blur(12px);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.35);
+  background: rgba(46, 16, 37, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.vip-ring {
+  box-shadow: 0 0 10px #D4AF37;
+  outline: 2px solid var(--luxyra-gold);
+  outline-offset: 2px;
 }
