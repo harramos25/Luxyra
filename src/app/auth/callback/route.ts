@@ -5,7 +5,8 @@ import { cookies } from "next/headers"
 export async function GET(request: Request) {
     const url = new URL(request.url)
     const code = url.searchParams.get("code")
-    const next = url.searchParams.get("next") ?? "/dashboard"
+    const next = url.searchParams.get("next") ?? "/post-auth"
+    const safeNext = next.startsWith("/") ? next : "/post-auth"
 
     if (!code) {
         return NextResponse.redirect(new URL("/login?error=missing_code", url.origin))
@@ -40,5 +41,5 @@ export async function GET(request: Request) {
 
     // Session exchanged successfully.
     // The user will now have a valid session cookie.
-    return NextResponse.redirect(new URL(next, url.origin))
+    return NextResponse.redirect(new URL(safeNext, url.origin))
 }

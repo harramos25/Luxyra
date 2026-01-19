@@ -29,6 +29,7 @@ export async function middleware(request: NextRequest) {
         pathname.startsWith("/notifications") ||
         pathname.startsWith("/onboarding") ||
         pathname.startsWith("/verify-selfie") ||
+        pathname.startsWith("/post-auth") ||
         pathname.startsWith("/admin")
 
     if (isProtected && !user) {

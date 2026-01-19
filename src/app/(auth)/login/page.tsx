@@ -16,6 +16,7 @@ export default function LoginPage() {
     const [mode, setMode] = React.useState<Mode>("login")
     const [email, setEmail] = React.useState("")
     const [password, setPassword] = React.useState("")
+    const [confirmPassword, setConfirmPassword] = React.useState("")
     const [loading, setLoading] = React.useState(false)
     const [msg, setMsg] = React.useState<string | null>(null)
 
@@ -32,24 +33,35 @@ export default function LoginPage() {
         router.push("/dashboard")
     }
 
-    async function handleCreateMagicLink(e: React.FormEvent) {
+    async function handleCreateAccountPassword(e: React.FormEvent) {
         e.preventDefault()
         setMsg(null)
         setLoading(true)
 
-        // Use Server Action to initiate login
-        // This ensures the PKCE verifier is stored in a cookie (readable by server)
-        // rather than localStorage (client only).
-        // This solves the 'PKCE verifier not found' error on the callback route.
-        const { signInWithMagicLink } = await import("@/actions/auth")
+        if (password !== confirmPassword) {
+            setLoading(false)
+            return setMsg("Passwords do not match.")
+        }
 
-        // We catch errors from the server action
-        const result = await signInWithMagicLink(email)
+        // SignUp with Email + Password + generic options
+        // We set emailRedirectTo to callback?next=/verify-email just in case user clicks a link,
+        // but primarily we expect them to enter code manually.
+        const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                emailRedirectTo: `${window.location.origin}/auth/callback?next=/verify-email`,
+            },
+        })
 
         setLoading(false)
-        if (result?.error) return setMsg(result.error)
+        if (error) return setMsg(error.message)
 
-        setMsg("Check your email. Open the magic link to continue.")
+        // For OTP flow, we don't wait for a link redirect.
+        // We assume success means "code sent".
+        // Redirect to OTP page.
+        // Pass email in query param so OTP page knows who to verify.
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`)
     }
 
     async function handleGoogle() {
@@ -119,7 +131,11 @@ export default function LoginPage() {
                                 required
                             />
 
-                            {mode === "login" ? (
+                            {/* Password input moved inside specific forms for granular control */}
+                        </div>
+
+                        {mode === "login" ? (
+                            <form onSubmit={handleLoginPassword} className="space-y-4">
                                 <Input
                                     className="bg-luxyra-deep/50 border-luxyra-gold/20 text-luxyra-blush placeholder:text-luxyra-blush/30"
                                     placeholder="Password"
@@ -128,11 +144,6 @@ export default function LoginPage() {
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
                                 />
-                            ) : null}
-                        </div>
-
-                        {mode === "login" ? (
-                            <form onSubmit={handleLoginPassword} className="space-y-4">
                                 <Button className="btn-gold w-full mt-2" isLoading={loading}>
                                     Log in
                                 </Button>
@@ -145,11 +156,7 @@ export default function LoginPage() {
                                             if (!email) return setMsg("Enter your email first.")
                                             setLoading(true)
                                             const redirectTo = `${window.location.origin}/auth/callback?next=/set-password`
-                                            // Reuse set-password flow for resets? Or standard reset? Standard reset usually sends a different link.
-                                            // Supabase resetPasswordForEmail sends a link with type=recovery.
-                                            // We'll point it to callback, which handles session exchange, then ideally to a reset pw page.
-                                            // For MVP, reusing set-password page works if session is established.
-
+                                            // Handle password reset
                                             const { error } = await supabase.auth.resetPasswordForEmail(email, {
                                                 redirectTo,
                                             })
@@ -163,14 +170,28 @@ export default function LoginPage() {
                                 </div>
                             </form>
                         ) : (
-                            <form onSubmit={handleCreateMagicLink} className="space-y-4">
+                            <form onSubmit={handleCreateAccountPassword} className="space-y-4">
+                                <Input
+                                    className="bg-luxyra-deep/50 border-luxyra-gold/20 text-luxyra-blush placeholder:text-luxyra-blush/30"
+                                    placeholder="Password"
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    minLength={6}
+                                />
+                                <Input
+                                    className="bg-luxyra-deep/50 border-luxyra-gold/20 text-luxyra-blush placeholder:text-luxyra-blush/30"
+                                    placeholder="Confirm Password"
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    required
+                                    minLength={6}
+                                />
                                 <Button className="btn-gold w-full mt-2" isLoading={loading}>
-                                    Send magic link
+                                    Create Account
                                 </Button>
-
-                                <div className="text-xs text-center text-luxyra-blush/40 px-4">
-                                    New account? We'll maintain the mystery. Verify via email first.
-                                </div>
                             </form>
                         )}
 
