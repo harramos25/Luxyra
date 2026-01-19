@@ -43,25 +43,21 @@ export default function LoginPage() {
             return setMsg("Passwords do not match.")
         }
 
-        // SignUp with Email + Password + generic options
-        // We set emailRedirectTo to callback?next=/verify-email just in case user clicks a link,
-        // but primarily we expect them to enter code manually.
+        // SignUp with Email + Password
+        // We set emailRedirectTo to callback
         const { error } = await supabase.auth.signUp({
             email,
             password,
             options: {
-                emailRedirectTo: `${window.location.origin}/auth/callback?next=/verify-email`,
+                emailRedirectTo: `${window.location.origin}/auth/callback`,
             },
         })
 
         setLoading(false)
         if (error) return setMsg(error.message)
 
-        // For OTP flow, we don't wait for a link redirect.
-        // We assume success means "code sent".
-        // Redirect to OTP page.
-        // Pass email in query param so OTP page knows who to verify.
-        router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+        // Show confirmation message. Do NOT redirect.
+        setMsg("Account created! Check your email to confirm.")
     }
 
     async function handleGoogle() {
